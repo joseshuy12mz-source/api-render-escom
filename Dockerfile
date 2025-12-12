@@ -1,27 +1,25 @@
-# Usar imagen base con Maven y Java 17
-FROM maven:3.9-eclipse-temurin-17 AS build
+# Etapa 1: Construcción
+FROM maven:3.9.5-eclipse-temurin-17 AS build
 
-# Establecer directorio de trabajo
 WORKDIR /app
 
 # Copiar archivos del proyecto
 COPY pom.xml .
 COPY src ./src
 
-# Construir la aplicación
+# Compilar el proyecto
 RUN mvn clean package -DskipTests
 
-# Etapa final
+# Etapa 2: Ejecución
 FROM eclipse-temurin:17-jre-alpine
 
-# Establecer directorio de trabajo
 WORKDIR /app
 
-# Copiar el JAR construido
-COPY --from=build /app/target/api-render-1.0.0.jar app.jar
+# Copiar el JAR generado
+COPY --from=build /app/target/*.jar app.jar
 
-# Exponer el puerto
+# Exponer puerto
 EXPOSE 8080
 
-# Comando para ejecutar la aplicación
-CMD ["java", "-jar", "app.jar"]
+# Ejecutar la aplicación
+ENTRYPOINT ["java", "-Dserver.port=${PORT:-8080}", "-jar", "app.jar"]
