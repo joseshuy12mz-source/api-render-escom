@@ -1,5 +1,5 @@
-# Usar imagen base de Java 17
-FROM eclipse-temurin:17-jdk-alpine AS build
+# Usar imagen base con Maven y Java 17
+FROM maven:3.9-eclipse-temurin-17 AS build
 
 # Establecer directorio de trabajo
 WORKDIR /app
@@ -8,13 +8,8 @@ WORKDIR /app
 COPY pom.xml .
 COPY src ./src
 
-# Dar permisos de ejecución al wrapper de Maven
-COPY mvnw .
-COPY .mvn .mvn
-RUN chmod +x mvnw
-
 # Construir la aplicación
-RUN ./mvnw clean package -DskipTests
+RUN mvn clean package -DskipTests
 
 # Etapa final
 FROM eclipse-temurin:17-jre-alpine
